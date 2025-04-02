@@ -2,7 +2,7 @@
   "name": "exa-mcp",
   "description": "MCP server for Exa AI",
   "type": "module",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "files": [
     "dist",
     "/cli.js"
