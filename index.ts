@@ -47,6 +47,12 @@ server.tool(
       ])
       .default("general")
       .describe("The result type"),
+    type: z
+      .enum(["auto", "keyword", "neural"])
+      .default("auto")
+      .describe(
+        "The search type. neural: meaning based search. keyword: matches keywords. auto picks the best between Neural and Keyword"
+      ),
     num_results: z
       .number()
       .min(1)
@@ -86,6 +92,7 @@ server.tool(
   },
   async (args) => {
     const regularSearchOptions: RegularSearchOptions = {
+      type: args.type,
       category: args.category === "general" ? undefined : args.category,
       numResults: args.num_results,
       startPublishedDate: args.start_published_date
@@ -112,11 +119,14 @@ server.tool(
         content: [
           {
             type: "text",
-            text: [
-              `[search result start]`,
-              dump(result.results),
-              `[search result end]`,
-            ].join("\n"),
+            text:
+              result.results.length === 0
+                ? `(no search results)`
+                : [
+                    `[search result start]`,
+                    dump(result.results),
+                    `[search result end]`,
+                  ].join("\n"),
           },
         ],
       }
