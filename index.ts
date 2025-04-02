@@ -57,7 +57,7 @@ server.tool(
       .number()
       .min(1)
       .max(100)
-      .default(10)
+      .default(5)
       .describe("The number of results to return"),
     start_published_date: z
       .string()
@@ -78,17 +78,21 @@ server.tool(
       .optional()
       .describe("The domains to exclude in the results"),
     live_crawl: z
-      .boolean()
-      .default(false)
-      .describe("Crawl results in real-time, instead of using cached results"),
-    full_text: z
-      .boolean()
-      .default(false)
-      .describe("Return full webpage text for every result"),
+      .enum(["always", "fallback"])
+      .default("always")
+      .describe(
+        "Crawl results in real-time, instead of using cached results, always: always crawl live. fallback: crawl only when cached results are not available"
+      ),
+    max_content_length: z
+      .number()
+      .default(3000)
+      .describe("The maximum content length of each result"),
     ai_summary: z
       .boolean()
       .default(false)
-      .describe("Return AI generated summary for every result"),
+      .describe(
+        "Return AI generated summary instead of raw page content for every result"
+      ),
   },
   async (args) => {
     const regularSearchOptions: RegularSearchOptions = {
@@ -106,14 +110,16 @@ server.tool(
     }
 
     try {
-      const result =
-        args.full_text || args.ai_summary
-          ? await exa.searchAndContents(args.query, {
-              ...regularSearchOptions,
-              text: args.full_text ? true : undefined,
-              summary: args.ai_summary ? true : undefined,
-            })
-          : await exa.search(args.query, regularSearchOptions)
+      const result = await exa.searchAndContents(args.query, {
+        ...regularSearchOptions,
+        text: args.ai_summary
+          ? undefined
+          : {
+              maxCharacters: args.max_content_length,
+            },
+        summary: args.ai_summary ? true : undefined,
+        livecrawl: args.live_crawl,
+      })
 
       return {
         content: [
