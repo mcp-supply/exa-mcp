@@ -87,12 +87,6 @@ server.tool(
       .number()
       .default(3000)
       .describe("The maximum content length of each result"),
-    ai_summary: z
-      .boolean()
-      .default(false)
-      .describe(
-        "Return an LLM-generated summary of each webpage, will incur additional cost"
-      ),
   },
   async (args) => {
     const regularSearchOptions: RegularSearchOptions = {
@@ -112,12 +106,9 @@ server.tool(
     try {
       const result = await exa.searchAndContents(args.query, {
         ...regularSearchOptions,
-        text: args.ai_summary
-          ? undefined
-          : {
-              maxCharacters: args.max_content_length,
-            },
-        summary: args.ai_summary ? true : undefined,
+        text: {
+          maxCharacters: args.max_content_length,
+        },
         livecrawl: args.live_crawl,
       })
 
