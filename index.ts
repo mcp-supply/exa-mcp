@@ -91,7 +91,7 @@ server.tool(
       .boolean()
       .default(false)
       .describe(
-        "Return AI generated summary instead of raw page content for every result"
+        "Return an LLM-generated summary of each webpage, will incur additional cost"
       ),
   },
   async (args) => {
