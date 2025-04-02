@@ -112,7 +112,11 @@ server.tool(
         content: [
           {
             type: "text",
-            text: dump(result.results),
+            text: [
+              `[search result start]`,
+              dump(result.results),
+              `[search result end]`,
+            ].join("\n"),
           },
         ],
       }
