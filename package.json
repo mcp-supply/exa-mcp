@@ -1,0 +1,23 @@
+{
+  "name": "exa-mcp",
+  "description": "MCP server for Exa AI",
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "bun build ./index.ts --packages external --outdir dist",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/js-yaml": "^4.0.9",
+    "@types/polka": "^0.5.7",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "exa-js": "^1.5.12",
+    "js-yaml": "^4.1.0",
+    "polka": "^0.5.2",
+    "zod": "^3.24.2"
+  }
+}
