@@ -2,7 +2,7 @@
   "name": "exa-mcp",
   "description": "MCP server for Exa AI",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "build": "bun build ./index.ts --packages external --outdir dist",
     "prepublishOnly": "npm run build"
