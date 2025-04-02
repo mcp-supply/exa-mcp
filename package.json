@@ -3,6 +3,11 @@
   "description": "MCP server for Exa AI",
   "type": "module",
   "version": "0.0.2",
+  "files": [
+    "dist",
+    "/cli.js"
+  ],
+  "bin": "./cli.js",
   "scripts": {
     "build": "bun build ./index.ts --packages external --outdir dist",
     "prepublishOnly": "npm run build"
