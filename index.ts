@@ -79,7 +79,9 @@ class ExaServer {
     }
   }
 
-  async connect(transport: SSEServerTransport): Promise<void> {
+  async connect(
+    transport: SSEServerTransport | StdioServerTransport
+  ): Promise<void> {
     await this.server.connect(transport)
   }
 }
@@ -143,5 +145,5 @@ if (process.argv.includes("--sse")) {
   console.log(`sse server: http://localhost:${port}/sse`)
 } else {
   const transport = new StdioServerTransport()
-  await server.connect(transport)
+  await exaServer.connect(transport)
 }
