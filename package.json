@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",
+    "axios": "^1.8.4",
     "exa-js": "^1.5.12",
     "js-yaml": "^4.1.0",
     "polka": "^0.5.2",
