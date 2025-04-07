@@ -2,8 +2,6 @@
 
 MCP server for [Exa](https://exa.ai/) Search API.
 
-This project is sponsored by [ChatWise](https://chatwise.app), an all-in-one LLM chatbot with first-class MCP support.
-
 ## Usage
 
 Get your API Key [here](https://dashboard.exa.ai/api-keys).
