@@ -9,13 +9,18 @@
   ],
   "bin": "./cli.js",
   "scripts": {
-    "build": "bun build ./index.ts --packages external --outdir dist",
+    "start": "cross-env NODE_ENV=development tsx watch -r dotenv/config index.ts --sse",
+    "build": "bun build ./index.ts --packages external --outdir dist && chmod +x dist/*.js",
+    "inspect": "npx @modelcontextprotocol/inspector@latest",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/js-yaml": "^4.0.9",
     "@types/polka": "^0.5.7",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.7",
+    "tsx": "^4.19.3",
     "typescript": "^5"
   },
   "dependencies": {
