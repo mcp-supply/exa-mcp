@@ -5,8 +5,8 @@ import { type ExaSearchRequest, type ExaSearchResponse } from "../types"
 import { createRequestLogger } from "../utils/logger.js"
 
 // Register the web search tool
-toolRegistry["web_search"] = {
-  name: "web_search",
+toolRegistry["exa_web_search"] = {
+  name: "exa_web_search",
   description:
     "Search the web using Exa AI - performs real-time web searches and can scrape content from specific URLs. Supports configurable result counts and returns the content from the most relevant websites.",
   schema: {
@@ -17,10 +17,10 @@ toolRegistry["web_search"] = {
       .describe("Number of search results to return (default: 5)"),
   },
   handler: async ({ query, numResults }, extra) => {
-    const requestId = `web_search-${Date.now()}-${Math.random()
+    const requestId = `exa_web_search-${Date.now()}-${Math.random()
       .toString(36)
       .substring(2, 7)}`
-    const logger = createRequestLogger(requestId, "web_search")
+    const logger = createRequestLogger(requestId, "exa_web_search")
 
     logger.start(query)
 

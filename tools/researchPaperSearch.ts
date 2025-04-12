@@ -5,8 +5,8 @@ import { type ExaSearchRequest, type ExaSearchResponse } from "../types"
 import { createRequestLogger } from "../utils/logger"
 
 // Register the research paper search tool
-toolRegistry["research_paper_search"] = {
-  name: "research_paper_search",
+toolRegistry["exa_research_paper_search"] = {
+  name: "exa_research_paper_search",
   description:
     "Search across 100M+ research papers with full text access using Exa AI - performs targeted academic paper searches with deep research content coverage. Returns detailed information about relevant academic papers including titles, authors, publication dates, and full text excerpts. Control the number of results and character counts returned to balance comprehensiveness with conciseness based on your task requirements.",
   schema: {
@@ -23,10 +23,10 @@ toolRegistry["research_paper_search"] = {
       ),
   },
   handler: async ({ query, numResults, maxCharacters }, extra) => {
-    const requestId = `research_paper-${Date.now()}-${Math.random()
+    const requestId = `exa_research_paper_search-${Date.now()}-${Math.random()
       .toString(36)
       .substring(2, 7)}`
-    const logger = createRequestLogger(requestId, "research_paper_search")
+    const logger = createRequestLogger(requestId, "exa_research_paper_search")
 
     logger.start(query)
 

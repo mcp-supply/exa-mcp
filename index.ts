@@ -13,9 +13,9 @@ if (!API_KEY) {
 }
 
 const specifiedTools = new Set<string>([
-  "web_search",
-  "research_paper_search",
-  "twitter_search",
+  "exa_web_search",
+  "exa_research_paper_search",
+  "exa_twitter_search",
 ])
 
 class ExaServer {

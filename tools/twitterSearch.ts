@@ -5,8 +5,8 @@ import { type ExaSearchRequest, type ExaSearchResponse } from "../types"
 import { createRequestLogger } from "../utils/logger"
 
 // Register the Twitter search tool
-toolRegistry["twitter_search"] = {
-  name: "twitter_search",
+toolRegistry["exa_twitter_search"] = {
+  name: "exa_twitter_search",
   description:
     "Search Twitter/X.com posts and accounts using Exa AI - performs targeted searches of Twitter (X.com) content including tweets, profiles, and discussions. Returns relevant tweets, profile information, and conversation threads based on your query. You can search for a user by x.com/username or from:username",
   schema: {
@@ -36,10 +36,10 @@ toolRegistry["twitter_search"] = {
     { query, numResults, startPublishedDate, endPublishedDate },
     extra
   ) => {
-    const requestId = `twitter_search-${Date.now()}-${Math.random()
+    const requestId = `exa_twitter_search-${Date.now()}-${Math.random()
       .toString(36)
       .substring(2, 7)}`
-    const logger = createRequestLogger(requestId, "twitter_search")
+    const logger = createRequestLogger(requestId, "exa_twitter_search")
 
     logger.start(query)
 
