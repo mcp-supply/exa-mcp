@@ -150,7 +150,7 @@ function analyzeKeywordFrequency(
  * Generates an SEO-optimized outline based on the analyzed data
  * @param topic Main topic for the outline
  * @param keyInsights Analyzed data from search results
- * @param keywords Number of keywords to include
+ * @param keywords Array of keywords to include in the outline
  * @param logger Logger instance for debugging
  * @returns Formatted SEO outline as a markdown string
  */
@@ -165,10 +165,11 @@ function generateSEOOutline(
   // Create title and introduction
   const title = `# Comprehensive SEO Content Outline: ${topic}`
 
-  // Generate a list of target keywords based on frequency
-  const targetKeywords = keyInsights.keywordFrequency
-    .slice(0, keywords.length)
-    .map((k) => k.keyword)
+  // Use provided keywords if available, otherwise use keywords from frequency analysis
+  const targetKeywords =
+    keywords.length > 0
+      ? keywords
+      : keyInsights.keywordFrequency.slice(0, 5).map((k) => k.keyword)
 
   // Create the keywords section
   const keywordsSection = [
@@ -233,10 +234,10 @@ function generateSEOOutline(
   const outline = [
     title,
     "",
-    keywordsSection,
+    // keywordsSection,
     introductionSection,
     ...mainSections,
-    faqSection.join("\n"),
+    // faqSection.join("\n"),
     conclusionSection,
     "",
     "---",
@@ -260,49 +261,72 @@ toolRegistry["seo_outline_generator"] = {
       .optional()
       .describe("The keywords to generate an outline for"),
   },
-  handler: async ({ topic, keywords }) => {
+  handler: async ({ topic, keywords = "" }, extra) => {
     // Step 1: Generate a unique request ID and initialize logger
     const requestId = `seo_outline_generator-${Date.now()}-${Math.random()
       .toString(36)
-      .substring(2, 7)}`
+      .substring(2, 9)}`
     const logger = createRequestLogger(requestId, "seo_outline_generator")
 
-    logger.start(topic)
+    logger.log(`Generating SEO outline for topic: ${topic}`)
+
+    // Parse comma-separated keywords into an array
+    const keywordArray = keywords
+      ? keywords
+          .split(",")
+          .map((k: string) => k.trim())
+          .filter((k: string) => k.length > 0)
+      : []
+
+    logger.log(`Using keywords: ${keywordArray.join(", ") || "None provided"}`)
 
     try {
-      // Step 2: Create a fresh axios instance for each request
-      const axiosInstance = axios.create({
-        baseURL: API_CONFIG.BASE_URL,
-        headers: {
-          accept: "application/json",
-          "content-type": "application/json",
-          "x-api-key": process.env.EXA_API_KEY || "",
-        },
-        timeout: 25000,
-      })
+      // Step 2: Validate the API configuration
+      const apiKey = process.env.EXA_API_KEY
+      if (!apiKey) {
+        logger.log("Error: Missing Exa API key")
+        return {
+          content: [
+            {
+              type: "text",
+              text: "Error: Missing Exa API key. Please configure the API key in the settings.",
+            },
+          ],
+        }
+      }
 
       // Step 3: Prepare the search request
+      logger.log("Preparing search request to Exa API")
+
+      // Create a more comprehensive query using the topic and keywords
+      const searchQuery =
+        keywordArray.length > 0 ? `${topic} ${keywordArray.join(" ")}` : topic
+
+      logger.log(`Search query: ${searchQuery}`)
+
       const searchRequest: ExaSearchRequest = {
-        query: topic,
+        query: searchQuery,
         type: "auto",
-        numResults: 5, // Get more results for better analysis
+        numResults: 5, // Get results for analysis
         contents: {
           text: {
             maxCharacters: API_CONFIG.DEFAULT_MAX_CHARACTERS,
           },
-          livecrawl: "always",
         },
       }
 
-      logger.log(`Searching for topic: "${topic}"`)
-
-      // Step 4: Execute the search request
-      const response = await axiosInstance.post<ExaSearchResponse>(
-        API_CONFIG.ENDPOINTS.SEARCH,
+      // Step 4: Send the search request to Exa API
+      logger.log("Sending request to Exa API")
+      const response = await axios.post<ExaSearchResponse>(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SEARCH}`,
         searchRequest,
-        { timeout: 25000 }
+        {
+          headers: {
+            "x-api-key": apiKey,
+            "Content-Type": "application/json",
+          },
+        }
       )
-
       logger.log("Received response from Exa API")
 
       // Step 5: Validate the search results
@@ -315,21 +339,28 @@ toolRegistry["seo_outline_generator"] = {
         return {
           content: [
             {
-              type: "text" as const,
-              text: "No search results found. Please try a different topic.",
+              type: "text",
+              text: "Unable to generate an SEO outline. No search results were found for the given topic.",
+            },
+            {
+              type: "text",
+              text: "Please try a different topic or check your API configuration.",
             },
           ],
         }
       }
-
-      logger.log(`Found ${response.data.results.length} results for analysis`)
 
       // Step 6: Analyze the search results to extract key information
       const searchResults = response.data.results
       const keyInsights = analyzeSearchResults(searchResults, logger)
 
       // Step 7: Generate the SEO outline based on the analysis
-      const outline = generateSEOOutline(topic, keyInsights, keywords, logger)
+      const outline = generateSEOOutline(
+        topic,
+        keyInsights,
+        keywordArray,
+        logger
+      )
 
       logger.log("Successfully generated SEO outline")
       logger.complete()
@@ -338,39 +369,20 @@ toolRegistry["seo_outline_generator"] = {
       return {
         content: [
           {
-            type: "text" as const,
+            type: "text",
             text: outline,
           },
         ],
       }
     } catch (error) {
-      logger.error(error)
+      logger.log(`Error generating SEO outline: ${error}`)
+      logger.complete()
 
-      if (axios.isAxiosError(error)) {
-        // Handle Axios errors specifically
-        const statusCode = error.response?.status || "unknown"
-        const errorMessage = error.response?.data?.message || error.message
-
-        logger.log(`Axios error (${statusCode}): ${errorMessage}`)
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error generating SEO outline (${statusCode}): ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-
-      // Handle generic errors
       return {
         content: [
           {
-            type: "text" as const,
-            text: `Error generating SEO outline: ${
-              error instanceof Error ? error.message : String(error)
-            }`,
+            type: "text",
+            text: "An error occurred while generating the SEO outline. Please try again later.",
           },
         ],
         isError: true,
