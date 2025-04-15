@@ -16,7 +16,6 @@ const specifiedTools = new Set<string>([
   "exa_web_search",
   "exa_research_paper_search",
   "exa_twitter_search",
-  "seo_outline_generator",
 ])
 
 class ExaServer {
